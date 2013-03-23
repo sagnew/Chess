@@ -3,8 +3,6 @@ import java.io.IOException;
 public class Board {
 	
 	public Piece[][] board = new Piece[8][8];
-	public int whiteKingPos;
-	public int blackKingPos;
 	
 	public Board(){
 		this.initialize();
@@ -61,6 +59,23 @@ public class Board {
 	 * @return boolean value corresponding to the king being in check
 	 */
 	public boolean isInCheck(String color){
+		int row, col;
+		
+		int y = 0;
+		for(int x = 0; x<board.length; x++){
+			if(board[x][y] != null){
+				if(board[x][y].getClass().isInstance(new King("white")) && board[x][y].color.equals(color)){
+					row = x;
+					col = y;
+				}
+			}
+			y++;
+		}
+		
+		//The positions of the king are retrieved as x and y. 
+		//Now I will go through the entire board, and check every piece of the opposite color's validateMove method
+		//I will use that piece's current position as the start, and the King's position as an end point
+		
 		return false;
 	}
 	
