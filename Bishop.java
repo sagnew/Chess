@@ -9,7 +9,6 @@ public class Bishop extends Piece{
 	
 	@Override
 	public boolean validateMove(Piece[][] board, int currentRow, int currentCol, int newRow, int newCol) {
-System.out.println("currentRow: " + currentRow + " currentCol: " + currentCol + " newRow: " + newRow + " newCol: " + newCol);
 		
 		if(currentRow == newRow || currentCol == newCol){
 			//Did not move diagonally

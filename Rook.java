@@ -10,7 +10,7 @@ public class Rook extends Piece{
 	public boolean validateMove(Piece[][] board, int currentRow, int currentCol, int newRow, int newCol) {
 		// TODO Auto-generated method stub
 		
-		System.out.println("currentRow: " + currentRow + " currentCol: " + currentCol + " newRow: " + newRow + " newCol: " + newCol);
+		//System.out.println("currentRow: " + currentRow + " currentCol: " + currentCol + " newRow: " + newRow + " newCol: " + newCol);
 		
 		if(currentRow != newRow && currentCol != newCol){
 			//Did not move along one rank/file
@@ -30,7 +30,7 @@ public class Rook extends Piece{
 			for(int x = currentRow + offset; x != newRow; x += offset){
 				//Go from currentRow to newRow, and check every space
 				if(board[x][currentCol] != null){
-					System.out.println("1 " + x);
+					//System.out.println("1 " + x);
 					return false;
 				}
 			}
@@ -47,7 +47,7 @@ public class Rook extends Piece{
 			for(int x = currentCol + offset; x != newCol; x += offset){
 				//Go from currentCol to newCol, and check every space
 				if(board[currentRow][x] != null){
-					System.out.println("2");
+					//System.out.println("2");
 					return false;
 				}
 			}
