@@ -37,11 +37,29 @@ public class Chess {
 			}
 			
 			try {
-				gameBoard.performMove(move, color);
+				gameBoard.performMove(move, color, true);
 			} catch (IOException e) {
 				// Ask for user input again
 				System.out.println("Invalid input!");
 				continue;
+			}
+			
+			Piece[][] oldBoard = gameBoard.board.clone();
+			
+			if(!gameBoard.canAnyPieceMakeAnyMove(colorToggle(color))){
+				if(gameBoard.isInCheck(colorToggle(color))){
+					System.out.println("Checkmate. " + color + " wins");
+					System.out.println("Game over!");
+				}else{
+					System.out.println("Stalemate!");
+				}
+				return;
+			}
+			
+			gameBoard.board = oldBoard;
+			
+			if(gameBoard.isInCheck(colorToggle(color))){
+				System.out.println(colorToggle(color) + " is in check.");
 			}
 			
 			if(move.contains("draw?")){
