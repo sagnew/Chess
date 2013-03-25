@@ -59,22 +59,19 @@ public class Board {
 	 * @return boolean value corresponding to the king being in check
 	 */
 	public boolean isInCheck(String color){
-		int row, col;
-		
-		int y = 0;
+		int[] kingPos = getKingPos(color);
+		int row = kingPos[0];
+		int col = kingPos[1];
+				
 		for(int x = 0; x<board.length; x++){
-			if(board[x][y] != null){
-				if(board[x][y].getClass().isInstance(new King("white")) && board[x][y].color.equals(color)){
-					row = x;
-					col = y;
+			for(int y = 0; y<board[0].length; y++){
+				if(board[x][y] != null){
+					if(board[x][y].validateMove(board, x, y, row, col) && !board[x][y].getColor().equals(color)){
+						return true;
+					}
 				}
 			}
-			y++;
 		}
-		
-		//The positions of the king are retrieved as x and y. 
-		//Now I will go through the entire board, and check every piece of the opposite color's validateMove method
-		//I will use that piece's current position as the start, and the King's position as an end point
 		
 		return false;
 	}
@@ -84,9 +81,9 @@ public class Board {
 	 * 
 	 * @throws IOException 
 	 */
-	public void performMove(String move, String color) throws IOException{
+	public void performMove(String move, String color, boolean actuallyMove) throws IOException{
 		int[] moveArray = parseInput(move);
-		System.out.println(board[moveArray[0]][moveArray[1]]);
+		//System.out.println(board[moveArray[0]][moveArray[1]]);
 		
 		if(board[moveArray[0]][moveArray[1]] == null){
 			throw new IOException();
@@ -105,35 +102,75 @@ public class Board {
 		if(board[moveArray[0]][moveArray[1]].validateMove(board, moveArray[0], moveArray[1], moveArray[2], moveArray[3])){
 			//This means the move was valid
 			
-			//Switch the two spots on the board because the move was valid
-			board[moveArray[2]][moveArray[3]] = board[moveArray[0]][moveArray[1]];
-			board[moveArray[0]][moveArray[1]] = null;
-			
-			if(board[moveArray[2]][moveArray[3]].getClass().isInstance(new King("white"))){
-				((King) board[moveArray[2]][moveArray[3]]).hasMoved = true;
-				//This Piece is a King
-				if(((King) board[moveArray[2]][moveArray[3]]).castled){
-					if(moveArray[3] - moveArray[1] == 2){
-						board[moveArray[2]][moveArray[3] - 1] = board[moveArray[2]][moveArray[3] + 1];
-						board[moveArray[2]][moveArray[3] + 1] = null;
-					}else{
-						board[moveArray[2]][moveArray[3] + 1] = board[moveArray[2]][moveArray[3] - 1];
-						board[moveArray[2]][moveArray[3] - 1] = null;
-					}
-					((King) board[moveArray[2]][moveArray[3]]).castled = false;
-				}
-			}
-			
 			if(isInCheck(color)){
 				//Because the current player put him/herself in check
 				//I need to find out what is going to happen to the board in this case
+				System.out.println("1");
 				throw new IOException();
+			}
+			
+			if(actuallyMove){
+				//Switch the two spots on the board because the move was valid
+				board[moveArray[2]][moveArray[3]] = board[moveArray[0]][moveArray[1]];
+				board[moveArray[0]][moveArray[1]] = null;
+			}
+			
+			if(board[moveArray[2]][moveArray[3]] != null){
+				if(board[moveArray[2]][moveArray[3]].getClass().isInstance(new King("white"))){
+					if(actuallyMove){
+						((King) board[moveArray[2]][moveArray[3]]).hasMoved = true;
+					}
+					//This Piece is a King
+					if(((King) board[moveArray[2]][moveArray[3]]).castled){
+						if(moveArray[3] - moveArray[1] == 2){
+							board[moveArray[2]][moveArray[3] - 1] = board[moveArray[2]][moveArray[3] + 1];
+							board[moveArray[2]][moveArray[3] + 1] = null;
+						}else{
+							board[moveArray[2]][moveArray[3] + 1] = board[moveArray[2]][moveArray[3] - 1];
+							board[moveArray[2]][moveArray[3] - 1] = null;
+						}
+						((King) board[moveArray[2]][moveArray[3]]).castled = false;
+					}
+				}
 			}
 			
 		}else{
 			throw new IOException();
 		}
 		
+		//Promotion
+		if(actuallyMove){
+			Piece piece = board[moveArray[2]][moveArray[3]];
+			if(piece != null){
+				if(piece.getClass().isInstance(new Pawn("white"))){
+					//The piece is a pawn
+					Piece replacement;
+					if(move.split(" ").length < 3){
+						move += " s";
+					}
+					if(piece.getColor().equals("white")){
+						if(moveArray[2] == 7){
+							
+							switch(move.split(" ")[2].charAt(0)){
+								case 'N': replacement = new Knight("white"); break;
+								case 'B': replacement = new Bishop("white"); break;
+								default: replacement = new Queen("white"); break;
+							}
+							board[moveArray[2]][moveArray[3]] = replacement;
+						}
+					}else{
+						if(moveArray[2] == 0){
+							switch(move.split(" ")[2].charAt(0)){
+								case 'N': replacement = new Knight("black"); break;
+								case 'B': replacement = new Bishop("black"); break;
+								default: replacement = new Queen("black"); break;
+							}
+							board[moveArray[2]][moveArray[3]] = replacement;
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	/**
@@ -171,12 +208,101 @@ public class Board {
 		}
 	}
 	
+	private int[] getKingPos(String color){
+		int row = 0, col = 0;
+		
+		for(int x = 0; x<board.length; x++){
+			for(int y = 0; y<board[0].length; y++){
+				if(board[x][y] != null){
+					if(board[x][y].getClass().isInstance(new King("white")) && board[x][y].getColor().equals(color)){
+						row = x;
+						col = y;
+					}
+				}
+			}
+		}
+		int[] returnArray = new int[2];
+		returnArray[0] = row;
+		returnArray[1] = col;
+				
+		return returnArray;
+		
+	}
+	
 	/**
-	 * Checks to see if the player is in checkmate
-	 * @return true if checkmated, false otherwise
+	 * Checks to see if any moves are possible. If not, then it is either a checkmate or stalemate, depending on whether or not anyone is currently in check.
+	 * @return
 	 */
-	public boolean checkMate(String color){
+	public boolean canAnyPieceMakeAnyMove(String color){
+		
+		Piece[][] oldBoard = board.clone();
+		
+		for(int x = 0; x<board.length; x++){
+			for(int y = 0; y<board[0].length; y++){
+				//Check this piece against every other piece...
+				for(int w = 0; w<board.length; w++){
+					for(int z = 0; z<board[0].length; z++){
+						try{
+							if(board[x][y] != null){
+								if(board[x][y].getColor().equals(color)){
+									//System.out.println(coordinatesToMoveString(x, y, w, z));
+									performMove(coordinatesToMoveString(x, y, w, z), board[x][y].getColor(), false);
+									board = oldBoard;
+									return true;
+								}
+							}
+							board = oldBoard;
+						} catch(Exception e){
+							board = oldBoard;
+						}
+					}
+				}
+			}
+		}
+		
+		board = oldBoard;
 		return false;
+	}
+	
+	private String coordinatesToMoveString(int row, int col, int newRow, int newCol){
+		
+		String returnString = "";
+		
+		switch(col){
+			case 0: returnString += 'a'; break;
+			case 1: returnString += 'b'; break;
+			case 2: returnString += 'c'; break;
+			case 3: returnString += 'd'; break;
+			case 4: returnString += 'e'; break;
+			case 5: returnString += 'f'; break; 
+			case 6: returnString += 'g'; break;
+			case 7: returnString += 'h'; break;
+			default: returnString += 'a'; break;
+		}
+		
+		int addInt = row + 1;
+		
+		returnString += addInt + "";
+		
+		returnString += " ";
+		
+		switch(newCol){
+		case 0: returnString += 'a'; break;
+		case 1: returnString += 'b'; break;
+		case 2: returnString += 'c'; break;
+		case 3: returnString += 'd'; break;
+		case 4: returnString += 'e'; break;
+		case 5: returnString += 'f'; break;
+		case 6: returnString += 'g'; break;
+		case 7: returnString += 'h'; break;
+		default: returnString += 'a'; break;
+	}
+		
+		addInt = newRow + 1;
+		
+		returnString += addInt + "";
+		//System.out.println(row + " " + col + " " + newRow + " " + newCol + " " + returnString);
+		return returnString;
 	}
 	
 	/**
