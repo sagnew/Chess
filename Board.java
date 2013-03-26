@@ -138,19 +138,23 @@ public class Board {
 			throw new IOException();
 		}
 		
-		//Promotion
+		//Rules dealing with pawns
 		if(actuallyMove){
 			Piece piece = board[moveArray[2]][moveArray[3]];
+			//This way it gets toggled the next time it moves
+			piece.ep_able = false;
 			if(piece != null){
 				if(piece.getClass().isInstance(new Pawn("white"))){
 					//The piece is a pawn
+					piece.hasMoved = true;
+					
+					//Promotion
 					Piece replacement;
 					if(move.split(" ").length < 3){
 						move += " s";
 					}
 					if(piece.getColor().equals("white")){
 						if(moveArray[2] == 7){
-							
 							switch(move.split(" ")[2].charAt(0)){
 								case 'N': replacement = new Knight("white"); break;
 								case 'B': replacement = new Bishop("white"); break;
@@ -168,8 +172,40 @@ public class Board {
 							board[moveArray[2]][moveArray[3]] = replacement;
 						}
 					}
+					
+					//En passante capture
+					/*int newCol = moveArray[3];
+					int newRow = moveArray[2];
+					if(inSixthRank(color, newRow)){
+						if(newCol + 1 < 8){
+							if(board[newRow][newCol + 1] != null){
+								if(board[newRow][newCol + 1].getClass().isInstance(new Pawn("white"))){
+									if(board[][].ep_able){
+										board[][] = null;
+									}
+								}
+							}
+						}else if(newCol - 1 > 0){
+							if(board[newRow][newCol - 1] != null){
+								if(board[newRow][newCol - 1].getClass().isInstance(new Pawn("white"))){
+									if(board[][].ep_able){
+										board[][] = null;
+									}
+								}
+							}
+						}
+					}*/
+					
 				}
 			}
+		}
+	}
+	
+	private boolean inSixthRank(String color, int rank){
+		if(color.equals("white")){
+			return rank == 5;
+		}else{
+			return rank == 2;
 		}
 	}
 	

@@ -2,7 +2,10 @@
 public class Pawn extends Piece {
 
 	public String color;
-	private boolean hasMoved;
+	public boolean hasMoved;
+	
+	//Is the piece allowed to be taken via en passante?
+	public boolean ep_able;
 	
 	public Pawn(String color){
 		this.color = color;
@@ -51,6 +54,21 @@ public class Pawn extends Piece {
 					}
 				}
 				
+				//En passante
+				if(newCol + 1 < 8){
+					if(board[newRow][newCol + 1] != null){
+						if(board[newRow][newCol + 1].getClass().isInstance(new Pawn("white"))){
+							ep_able = true;
+						}
+					}
+				}else if(newCol - 1 > 0){
+					if(board[newRow][newCol - 1] != null){
+						if(board[newRow][newCol - 1].getClass().isInstance(new Pawn("white"))){
+							ep_able = true;
+						}
+					}
+				}
+				
 			}
 		}else{
 			//Taking a piece
@@ -59,12 +77,17 @@ public class Pawn extends Piece {
 			}
 			
 			if(board[newRow][newCol] == null){
+				/*if(newRow - 1 > 0){
+					if(newCol - 1 > 0){
+						if(board[newRow - 1][newCol - 1] != null){
+							if(){
+								
+							}
+						}
+					}
+				}*/
 				return false;
 			}
-		}
-		
-		if(!hasMoved){
-			hasMoved = true;
 		}
 		
 		return true;

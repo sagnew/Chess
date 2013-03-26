@@ -1,6 +1,8 @@
 public abstract class Piece {
 	
 	public String color;
+	public boolean hasMoved;
+	public boolean ep_able;
 	
 	/**
 	 * Gets the color
